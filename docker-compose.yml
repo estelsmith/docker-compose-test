@@ -1,21 +1,25 @@
 proxy:
     image: jwilder/nginx-proxy:latest
-    ports:
-        - "80:80"
+    mem_limit: 64m
+    cpu_shares: 100
     volumes:
         - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+        - 80:80
 
 web:
     build: .
-    ports:
-        - "80"
+    mem_limit: 64m
+    cpu_shares: 100
     links:
         - mysql
     environment:
-        - VIRTUAL_HOST=192.168.99.100
+        VIRTUAL_HOST: test.local
 
 mysql:
     image: mysql:5.7
+    mem_limit: 256m
+    cpu_shares: 100
     volumes:
         - /var/lib/mysql
     environment:
