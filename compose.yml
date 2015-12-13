@@ -1,0 +1,35 @@
+namespace: rocker-test
+containers:
+    proxy:
+        image: jwilder/nginx-proxy:latest
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+        ports:
+            - 80:80
+
+    {{ range $web := seq (or .web 1) }}
+    web_{{ $web }}:
+        image: web
+        volumes:
+            - web/src:/var/www/html
+        links:
+            - mysql
+        environment:
+            VIRTUAL_HOST: test.local
+    {{ end }}
+
+    mysql:
+        image: mysql:5.7
+        volumes_from:
+            - mysql_data
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: dev
+            MYSQL_USER: dev
+            MYSQL_PASSWORD: test123
+
+    mysql_data:
+        image: grammarly/scratch:latest
+        state: created
+        volumes:
+            - /var/lib/mysql
